@@ -32,3 +32,4 @@ public/videos/*.mp4
 # not referenced anywhere in the app) — don't publish these either.
 public/images/
 public/retro-setup.jpg
+.vercel

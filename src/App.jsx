@@ -560,17 +560,20 @@ function App() {
             }
           }}
         >
-          {/* Mobile pull tab handle */}
+          {/* Mobile & Touch Floating Remote Trigger Badge */}
           <button
             type="button"
-            className="remote-pull-handle"
+            className="remote-floating-badge"
             onClick={(e) => {
               e.stopPropagation();
               setIsRemoteExpanded((prev) => !prev);
             }}
-            aria-label={isRemoteExpanded ? "Close Remote" : "Open Remote"}
+            aria-label={isRemoteExpanded ? "Hide Remote" : "Show Remote"}
           >
-            <span className="remote-pull-bar" />
+            <span className="remote-badge-icon">🎛️</span>
+            <span className="remote-badge-text">
+              {isRemoteExpanded ? "HIDE REMOTE ▼" : "REMOTE ▲"}
+            </span>
           </button>
 
           <SkeuoRemote
