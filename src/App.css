@@ -6,128 +6,259 @@
   box-sizing: border-box;
 }
 
-body {
+html, body {
   margin: 0;
-  background: radial-gradient(circle at 50% 0%, #241a12 0%, #120c08 60%, #08050 100%);
-  background-color: #100b07;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #000;
   color: #f2e6d8;
   font-family: "Georgia", "Times New Roman", serif;
 }
 
 .app {
-  min-height: 100vh;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 32px 16px 64px;
-}
-
-.app-header {
-  text-align: center;
-  margin-bottom: 28px;
-}
-
-.app-header h1 {
-  font-family: "Copperplate", "Georgia", serif;
-  letter-spacing: 2px;
-  font-size: 2.2rem;
-  margin: 0 0 6px;
-  color: #f4c869;
-  text-shadow: 0 0 12px rgba(244, 200, 105, 0.35);
-}
-
-.app-header p {
+  justify-content: center;
+  padding: 0;
   margin: 0;
-  color: #b9a892;
-  font-style: italic;
+  background-color: #000;
 }
 
 .room {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-width: 100vw;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  max-width: 900px;
-  width: 100%;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background-color: #000;
 }
 
-.wall {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 28px;
-  padding: 40px clamp(16px, 6vw, 56px) 0;
-  background: linear-gradient(180deg, #7a5636 0%, #5c3f26 55%, #4a3220 100%);
-  background-image:
-    repeating-linear-gradient(
-      90deg,
-      rgba(0, 0, 0, 0.08) 0px,
-      rgba(0, 0, 0, 0.08) 2px,
-      transparent 2px,
-      transparent 26px
-    ),
-    linear-gradient(180deg, #7a5636 0%, #5c3f26 55%, #4a3220 100%);
-  border-radius: 18px;
-  box-shadow: inset 0 12px 40px rgba(0, 0, 0, 0.35);
+/* EDGE-TO-EDGE PROPORTIONAL 90S ROOM SCENE (MATHEMATICALLY LOCKED 16:9) */
+.room-scene {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-width: calc(100vh * 16 / 9);
+  max-height: calc(100vw * 9 / 16);
+  aspect-ratio: 16 / 9;
+  margin: auto;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.95);
 }
 
-.frame-row {
-  display: flex;
-  align-items: flex-end;
-  gap: 22px;
+@supports (height: 100dvh) {
+  .room-scene {
+    max-width: calc(100dvh * 16 / 9);
+    max-height: calc(100vw * 9 / 16);
+  }
 }
 
-.frame {
-  background: linear-gradient(160deg, #2b1a10, #150c07);
-  border: 6px solid #d8c9a3;
-  border-radius: 2px;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45), inset 0 0 0 2px #3a2717;
-  padding: 6px;
-}
-
-.frame--sm {
-  width: 64px;
-  height: 84px;
-}
-
-.frame--lg {
-  width: 92px;
-  height: 118px;
-}
-
-.frame-art {
+.room-bg-img {
   width: 100%;
   height: 100%;
+  object-fit: fill;
+  display: block;
 }
 
-.frame-art--1 {
-  background: radial-gradient(circle at 30% 30%, #8fae8a, #3d5a42 70%);
+/* CEILING FAN (SPEED 3 ANIMATION) */
+.animated-fan-container {
+  position: absolute;
+  top: 1.2%;
+  right: 17.2%;
+  width: 24.5%;
+  height: 12.5%;
+  z-index: 4;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.frame-art--2 {
-  background: linear-gradient(160deg, #b98a4e 0%, #6b4226 60%, #2e1c10 100%);
+.fan-hub {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: radial-gradient(circle, #3d352b, #1a1612);
+  border-radius: 50%;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
+  z-index: 2;
 }
 
-.frame-art--3 {
-  background: radial-gradient(circle at 60% 40%, #c9a24b, #5c3a22 75%);
+.fan-blade {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 48%;
+  height: 8px;
+  background: linear-gradient(90deg, rgba(40, 32, 24, 0.6) 0%, rgba(20, 16, 12, 0.2) 100%);
+  border-radius: 4px;
+  transform-origin: left center;
+  animation: spinFan 0.6s linear infinite;
 }
 
-.tv-console {
-  position: relative;
-  width: min(640px, 100%);
-  background: linear-gradient(160deg, #8a5a34, #4a3220);
-  background-image:
-    repeating-linear-gradient(
-      100deg,
-      rgba(0, 0, 0, 0.06) 0px,
-      rgba(0, 0, 0, 0.06) 1px,
-      transparent 1px,
-      transparent 10px
-    ),
-    linear-gradient(160deg, #8a5a34, #4a3220);
-  border-radius: 14px 14px 6px 6px;
-  padding: 26px 22px 0;
-  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.55), inset 0 0 0 3px #2e1c10;
+.fan-blade--1 {
+  transform: translateY(-50%) rotate(0deg);
+}
+
+.fan-blade--2 {
+  transform: translateY(-50%) rotate(120deg);
+}
+
+.fan-blade--3 {
+  transform: translateY(-50%) rotate(240deg);
+}
+
+@keyframes spinFan {
+  0% {
+    transform: translateY(-50%) rotate(0deg);
+  }
+  100% {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
+/* CURTAIN BREEZE ANIMATION OVERLAY */
+.animated-curtain-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 18.5%;
+  height: 85%;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(255, 230, 180, 0.08) 0%, transparent 100%);
+  animation: breezeCurtain 4.5s ease-in-out infinite;
+  transform-origin: top left;
+}
+
+@keyframes breezeCurtain {
+  0%, 100% {
+    transform: skewX(0deg) scaleX(1);
+  }
+  50% {
+    transform: skewX(-1.8deg) scaleX(1.02);
+  }
+}
+
+/* REAL-TIME AJANTA QUARTZ WALL CLOCK ON TOP CENTER WALL */
+.realtime-clock-container {
+  position: absolute;
+  top: 0.2%;
+  left: 48.7%;
+  width: 8.8%;
+  height: 14.8%;
+  z-index: 5;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5));
+}
+
+.realtime-clock-dial {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.clock-hand {
+  position: absolute;
+  bottom: 50%;
+  left: 50%;
+  transform-origin: bottom center;
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.clock-hand--hour {
+  width: 3.5px;
+  height: 27%;
+  background: #111;
+  margin-left: -1.75px;
+  z-index: 6;
+}
+
+.clock-hand--minute {
+  width: 2.5px;
+  height: 37%;
+  background: #111;
+  margin-left: -1.25px;
+  z-index: 7;
+}
+
+.clock-hand--second {
+  width: 1.5px;
+  height: 43%;
+  background: #d31212;
+  margin-left: -0.75px;
+  z-index: 8;
+  transition: transform 0.05s linear;
+}
+
+.clock-center-pin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  background: #d4af37;
+  border: 1px solid #111;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9;
+}
+
+/* SUNBEAM AMBIENT SHIMMER OVERLAY */
+.animated-sunbeam-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 45%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255, 235, 170, 0.15) 0%, rgba(255, 215, 120, 0.05) 50%, transparent 100%);
+  animation: sunRayGlow 5s ease-in-out infinite;
+}
+
+@keyframes sunRayGlow {
+  0%, 100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+/* LIVE TV SCREEN TUBE EMBEDDED INSIDE CRT ARTWORK */
+.room-tv-screen-wrapper {
+  position: absolute;
+  top: 28.5%;
+  left: 41.6%;
+  width: 18.5%;
+  height: 24.0%;
+  z-index: 5;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.85);
+}
+
+.room-tv-screen-wrapper .tv-screen {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: unset;
+  border-radius: 12px;
 }
 
 .tv-antenna {
@@ -172,93 +303,211 @@ body {
   box-shadow: inset 0 0 0 4px #000, inset 0 0 30px rgba(0, 0, 0, 0.6);
 }
 
-.tv-bottom-control-bar {
-  margin-top: 12px;
+/* REALISTIC 90S CRT TV POWER OFF PITCH BLACK SCREEN */
+.tv-screen.is-off {
+  background: #020202 !important;
+}
+
+.tv-power-off-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  z-index: 90;
   display: flex;
   align-items: center;
-  gap: 14px;
-  background: linear-gradient(180deg, #24160c 0%, #150c07 100%);
-  border: 2px solid #3f2717;
-  border-radius: 8px;
-  padding: 8px 12px;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+  justify-content: center;
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.95);
+  animation: crtTurnOff 0.45s ease-out forwards;
 }
 
-.tv-channel-display {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: #080f08;
-  border: 2px solid #332214;
-  border-radius: 4px;
-  padding: 4px 10px;
-  box-shadow: inset 0 0 8px #000;
-  flex: none;
-}
-
-.tv-channel-label {
-  font-family: monospace;
-  font-size: 0.7rem;
-  font-weight: bold;
-  color: #7a6546;
-}
-
-.tv-channel-num {
-  font-family: "Courier New", monospace;
-  font-size: 1rem;
-  font-weight: bold;
-  color: #4df068;
-  text-shadow: 0 0 6px rgba(77, 240, 104, 0.7);
-  letter-spacing: 1px;
-}
-
-.tv-bottom-btn-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  justify-content: flex-end;
-}
-
-.tv-bar-btn {
-  background: linear-gradient(180deg, #4a3424, #261a10);
-  border: 1px solid #6b4d36;
-  border-radius: 6px;
-  color: #f4c869;
-  font-family: "Georgia", serif;
-  font-size: 0.8rem;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 3px 0 #120a05, 0 4px 6px rgba(0, 0, 0, 0.6);
-  transition: all 0.1s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  user-select: none;
-}
-
-.tv-bar-btn:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 #120a05, 0 2px 3px rgba(0, 0, 0, 0.6);
-}
-
-.tv-power-btn {
-  background: linear-gradient(180deg, #3d281a, #1f130a);
-  border-color: #7a5538;
-}
-
-.tv-power-light {
-  width: 7px;
-  height: 7px;
+.crt-off-glow-dot {
+  width: 4px;
+  height: 4px;
+  background: #ffffff;
   border-radius: 50%;
-  background: #ff3b30;
-  box-shadow: 0 0 6px #ff3b30;
+  box-shadow: 0 0 12px 6px #ffffff, 0 0 25px 12px rgba(255, 255, 255, 0.6);
+  opacity: 0;
+  animation: crtDotFade 0.6s ease-out forwards;
 }
 
-.tv-power-btn.is-playing .tv-power-light {
-  background: #34c759;
-  box-shadow: 0 0 6px #34c759;
+@keyframes crtTurnOff {
+  0% {
+    clip-path: inset(0% 0% 0% 0%);
+    filter: brightness(2);
+  }
+  50% {
+    clip-path: inset(49% 0% 49% 0%);
+    filter: brightness(3);
+  }
+  100% {
+    clip-path: inset(50% 50% 50% 50%);
+    filter: brightness(0);
+  }
+}
+
+@keyframes crtDotFade {
+  0% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(2.5); }
+  100% { opacity: 0; transform: scale(0.1); }
+}
+
+/* SKEUOMORPHIC TV REMOTE CONTROL — PEEKS FROM BOTTOM CENTER */
+.mini-remote-wrapper {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(80%);
+  z-index: 100;
+  user-select: none;
+  transition: transform .35s cubic-bezier(.16,1,.3,1);
+  touch-action: pan-y;
+}
+
+/* Invisible helper element to expand hover space for mouse users */
+.mini-remote-wrapper::before {
+  content: "";
+  position: absolute;
+  top: -50px;
+  bottom: -50px;
+  left: -60px;
+  right: -60px;
+  pointer-events: auto;
+  z-index: -1;
+}
+
+/* Desktop hover reveal */
+@media (hover: hover) and (pointer: fine) {
+  .mini-remote-wrapper:hover {
+    transform: translateX(-50%) translateY(0%);
+  }
+}
+
+/* Touch / Class-based reveal */
+.mini-remote-wrapper.is-expanded {
+  transform: translateX(-50%) translateY(0%) !important;
+}
+
+/* MOBILE PULL HANDLE */
+.remote-pull-handle {
+  display: none;
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 22px;
+  background: rgba(32, 26, 20, 0.9);
+  border: 1px solid rgba(244, 200, 105, 0.4);
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  padding: 0;
+  outline: none;
+  z-index: 101;
+}
+
+.remote-pull-bar {
+  width: 26px;
+  height: 3px;
+  background: #f4c869;
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(244, 200, 105, 0.6);
+}
+
+.mini-remote-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+.mini-remote-hotspots {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.mini-remote-btn {
+  position: absolute;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  border-radius: 50%;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.mini-remote-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+.mini-remote-btn:active {
+  transform: scale(0.92);
+}
+
+/* BUTTON HOTSPOT POSITIONS ON NEW LONG BLACK REMOTE */
+.mini-btn--power {
+  top: 10.5%;
+  left: 17%;
+  width: 18%;
+  height: 12%;
+}
+
+.mini-btn--mute {
+  top: 10.5%;
+  right: 17%;
+  width: 18%;
+  height: 12%;
+}
+
+.mini-btn--vol-up {
+  top: 17.5%;
+  left: 37%;
+  width: 26%;
+  height: 11%;
+  border-radius: 18px 18px 0 0;
+}
+
+.mini-btn--vol-down {
+  top: 38%;
+  left: 37%;
+  width: 26%;
+  height: 11%;
+  border-radius: 0 0 18px 18px;
+}
+
+.mini-btn--ch-prev {
+  top: 25.5%;
+  left: 18%;
+  width: 18%;
+  height: 16%;
+  border-radius: 18px 0 0 18px;
+}
+
+.mini-btn--ch-next {
+  top: 25.5%;
+  right: 18%;
+  width: 18%;
+  height: 16%;
+  border-radius: 0 18px 18px 0;
+}
+
+.mini-btn--ok {
+  top: 26.5%;
+  left: 39%;
+  width: 22%;
+  height: 14%;
 }
 
 /* CHANNEL THUMBNAIL GALLERY BELOW THE TV SCREEN */
@@ -518,7 +767,8 @@ body {
   width: 100%;
   height: 100%;
   border: none;
-  object-fit: cover;
+  object-fit: contain;
+  pointer-events: none;
 }
 
 .tv-empty {
@@ -540,31 +790,178 @@ body {
   background: transparent;
   border: none;
   padding: 0;
-  cursor: pointer;
+  display: flex;
+  user-select: none;
+  touch-action: manipulation;
+  transition: background 0.2s ease;
+}
+
+.tv-hit-layer.is-paused {
+  background: transparent;
+  backdrop-filter: none;
+}
+
+.tv-hit-zone {
+  height: 100%;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.tv-pause-cover-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: rgba(20, 14, 8, 0.45);
-  color: #f4c869;
-  font-size: 1.6rem;
+.tv-hit-zone--left {
+  width: 35%;
+  cursor: pointer;
+}
+
+.tv-hit-zone--center {
+  width: 30%;
+  cursor: pointer;
+}
+
+.tv-hit-zone--right {
+  width: 35%;
+  cursor: pointer;
+}
+
+/* PAUSE SCREEN PLAY/RESUME ARROW BUTTON */
+.tv-play-pause-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-left: 4px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(2px);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(12, 10, 8, 0.72);
+  color: #4df068;
+  border: 1.5px solid rgba(77, 240, 104, 0.75);
+  box-shadow: 0 0 18px rgba(77, 240, 104, 0.45), 0 4px 12px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+  animation: playBtnPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  user-select: none;
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tv-hit-zone--center:hover .tv-play-pause-btn {
+  background: rgba(18, 16, 12, 0.88);
+  box-shadow: 0 0 24px rgba(77, 240, 104, 0.65), 0 4px 16px rgba(0, 0, 0, 0.85);
+  transform: scale(1.1);
+}
+
+.tv-play-pause-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+  padding-left: 3px; /* Optical center alignment for play triangle */
+  text-shadow: 0 0 8px rgba(77, 240, 104, 0.8);
+}
+
+@keyframes playBtnPop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* SEEK TOAST OVERLAY & KEYBOARD HINTS */
+.tv-seek-toast {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(8, 15, 8, 0.9);
+  color: #4df068;
+  font-family: "Courier New", monospace;
+  font-size: 1.4rem;
+  font-weight: bold;
+  padding: 10px 22px;
+  border-radius: 8px;
+  border: 2px solid #4df068;
+  box-shadow: 0 0 20px rgba(77, 240, 104, 0.6);
+  z-index: 10;
+  pointer-events: none;
+  text-shadow: 0 0 8px rgba(77, 240, 104, 0.8);
+  letter-spacing: 1px;
+}
+
+/* MUTE INDICATOR — small persistent icon in top-right of TV screen */
+.tv-mute-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 1.1rem;
+  background: rgba(0, 0, 0, 0.65);
+  border-radius: 6px;
+  padding: 2px 5px;
+  pointer-events: none;
+  z-index: 11;
+  line-height: 1;
+  animation: mutePop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes mutePop {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.keyboard-shortcuts-hint {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #c4b39c;
+  flex-wrap: wrap;
+}
+
+.keyboard-shortcuts-hint kbd {
+  background: #24160c;
+  border: 1px solid #6b4d36;
+  border-radius: 4px;
+  padding: 2px 6px;
+  color: #f4c869;
+  font-weight: bold;
+  box-shadow: 0 2px 0 #120a05;
+}
+
+/* RETRO TV UNMUTE BADGE */
+.tv-unmute-badge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(18, 12, 8, 0.88);
+  color: #f4c869;
+  border: 2px solid #f4c869;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-family: "Courier New", monospace;
+  font-size: 0.75rem;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 12;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), 0 0 10px rgba(244, 200, 105, 0.3);
+  letter-spacing: 0.5px;
+  animation: pulseBadge 2s infinite ease-in-out;
   transition: transform 0.15s ease, background 0.15s ease;
 }
 
-.tv-hit-layer--paused:hover .tv-pause-cover-icon {
-  transform: scale(1.08);
+.tv-unmute-badge:hover {
+  transform: scale(1.05);
   background: rgba(244, 200, 105, 0.25);
+}
+
+@keyframes pulseBadge {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), 0 0 8px rgba(244, 200, 105, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7), 0 0 16px rgba(244, 200, 105, 0.7);
+  }
 }
 
 
@@ -679,5 +1076,112 @@ body {
   font-size: 1.5rem;
   background: #f4c869;
   color: #1c110a;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UNIVERSAL RESPONSIVE BREAKPOINTS (DESKTOP, TABLET, MOBILE)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* TABLETS (iPad, Tablet in Portrait / Landscape <= 1024px) */
+@media (max-width: 1024px) {
+  .mini-remote-wrapper {
+    transform: translateX(-50%) translateY(80%) scale(0.9);
+    transform-origin: bottom center;
+  }
+
+  .mini-remote-wrapper.is-expanded,
+  .mini-remote-wrapper:hover {
+    transform: translateX(-50%) translateY(0%) scale(0.9);
+  }
+
+  .remote-pull-handle {
+    display: flex;
+  }
+}
+
+/* MOBILE PHONES (iPhone, Android <= 768px) */
+@media (max-width: 768px) {
+  .mini-remote-wrapper {
+    transform: translateX(-50%) translateY(82%) scale(0.78);
+    transform-origin: bottom center;
+  }
+
+  .mini-remote-wrapper.is-expanded {
+    transform: translateX(-50%) translateY(0%) scale(0.78) !important;
+  }
+
+  .remote-pull-handle {
+    display: flex;
+    top: -22px;
+    width: 54px;
+    height: 18px;
+  }
+
+  .tv-mute-icon {
+    top: 4px;
+    right: 4px;
+    font-size: 0.85rem;
+    padding: 1px 4px;
+  }
+
+  .tv-play-pause-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .tv-play-pause-icon {
+    font-size: 1rem;
+  }
+
+  .tv-seek-toast {
+    font-size: 1.1rem;
+    padding: 8px 16px;
+  }
+}
+
+/* EXTRA SMALL MOBILE (<= 480px) */
+@media (max-width: 480px) {
+  .mini-remote-wrapper {
+    transform: translateX(-50%) translateY(84%) scale(0.72);
+    transform-origin: bottom center;
+  }
+
+  .mini-remote-wrapper.is-expanded {
+    transform: translateX(-50%) translateY(0%) scale(0.72) !important;
+  }
+
+  .tv-play-pause-btn {
+    width: 30px;
+    height: 30px;
+  }
+
+  .tv-play-pause-icon {
+    font-size: 0.85rem;
+  }
+
+  .tv-seek-toast {
+    font-size: 0.95rem;
+    padding: 6px 12px;
+  }
+}
+
+/* MOBILE LANDSCAPE / SHORT VIEWPORTS (max-height: 520px) */
+@media (max-height: 520px) {
+  .mini-remote-wrapper {
+    transform: translateX(-50%) translateY(86%) scale(0.62);
+    transform-origin: bottom center;
+  }
+
+  .mini-remote-wrapper.is-expanded,
+  .mini-remote-wrapper:hover {
+    transform: translateX(-50%) translateY(0%) scale(0.62) !important;
+  }
+
+  .remote-pull-handle {
+    display: flex;
+    top: -20px;
+    width: 48px;
+    height: 16px;
+  }
 }
 

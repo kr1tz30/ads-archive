@@ -19,39 +19,57 @@ function loadYouTubeAPI() {
   return apiPromise;
 }
 
-export default function YouTubePlayer({ videoId, onReady, onStateChange, playerRef }) {
+export default function YouTubePlayer({ videoId, onReady, onStateChange, playerRef, isMuted }) {
   const wrapperRef = useRef(null);
   const internalPlayer = useRef(null);
+  const isMutedRef = useRef(isMuted);
+
+  useEffect(() => {
+    isMutedRef.current = isMuted;
+    if (internalPlayer.current) {
+      if (isMuted) {
+        try { internalPlayer.current.mute(); } catch {}
+      } else {
+        try { internalPlayer.current.unMute(); } catch {}
+      }
+    }
+  }, [isMuted]);
 
   useEffect(() => {
     let cancelled = false;
-    // YT.Player replaces its target node with an iframe, which React never
-    // sees — so the target must be a plain DOM node React doesn't track,
-    // not a ref'd JSX child. Otherwise StrictMode's mount/cleanup/mount
-    // double-invoke races with YouTube's own DOM swap and React ends up
-    // calling removeChild on a node that's already gone.
-    const target = document.createElement("div");
-    wrapperRef.current.appendChild(target);
+    const container = wrapperRef.current;
+    if (!container) return;
+
+    // Pre-create iframe with explicit allow="autoplay; encrypted-media" feature policy
+    const iframe = document.createElement("iframe");
+    const origin = typeof window !== "undefined" && window.location?.origin ? window.location.origin : "";
+    iframe.src = `https://www.youtube.com/embed/${videoId || ""}?autoplay=1&mute=${isMuted ? 1 : 0}&controls=0&rel=0&playsinline=1&enablejsapi=1&cc_load_policy=0&iv_load_policy=3&disablekb=1&modestbranding=1&fs=0${origin ? `&origin=${encodeURIComponent(origin)}` : ""}`;
+    iframe.setAttribute("allow", "autoplay; encrypted-media; picture-in-picture");
+    iframe.setAttribute("allowfullscreen", "1");
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
+    iframe.style.border = "none";
+
+    container.innerHTML = "";
+    container.appendChild(iframe);
 
     loadYouTubeAPI().then((YT) => {
       if (cancelled) return;
-      internalPlayer.current = new YT.Player(target, {
-        videoId: videoId || undefined,
-        playerVars: {
-          rel: 0,
-          modestbranding: 1,
-          playsinline: 1,
-          controls: 0,
-          disablekb: 1,
-          fs: 0,
-          iv_load_policy: 3,
-          cc_load_policy: 0,
-        },
+      internalPlayer.current = new YT.Player(iframe, {
         events: {
           onReady: (e) => {
-            playerRef.current = internalPlayer.current;
-            // Some videos force captions on regardless of cc_load_policy;
-            // explicitly unload the captions module as a second attempt.
+            playerRef.current = e.target;
+            try {
+              if (isMutedRef.current) {
+                e.target.mute();
+              } else {
+                e.target.unMute();
+                e.target.setVolume(100);
+              }
+              e.target.playVideo();
+            } catch {
+              // Autoplay error fallback
+            }
             if (e.target.unloadModule) {
               e.target.unloadModule("captions");
             }
@@ -65,10 +83,15 @@ export default function YouTubePlayer({ videoId, onReady, onStateChange, playerR
     return () => {
       cancelled = true;
       if (internalPlayer.current && internalPlayer.current.destroy) {
-        internalPlayer.current.destroy();
+        try {
+          internalPlayer.current.destroy();
+        } catch {
+          // Ignore
+        }
       }
       internalPlayer.current = null;
       playerRef.current = null;
+      if (container) container.innerHTML = "";
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

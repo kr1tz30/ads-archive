@@ -1,0 +1,443 @@
+/* ═══════════════════════════════════════════════════════════════
+   SKEUOMORPHIC TV REMOTE  –  faithful recreation of reference image
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Body ── */
+.sr-body {
+  width: 190px;
+  /* Matte-to-gloss dark plastic body matching reference */
+  background:
+    linear-gradient(
+      170deg,
+      #363636 0%,
+      #252525 18%,
+      #1c1c1c 40%,
+      #161616 65%,
+      #111 100%
+    );
+  border-radius: 30px 30px 52px 52px;
+  padding: 20px 18px 30px;
+
+  /* Layered shadows: tight specular edge + wide ambient depth */
+  box-shadow:
+    /* Top-left specular edge highlight (bright rim light) */
+    -1px -1px 0 #555,
+    /* Inset top highlight – simulates curved plastic curvature */
+    0 3px 8px rgba(255,255,255,.07) inset,
+    /* Inset bottom shadow – bottom of the curve sinks away */
+    0 -4px 12px rgba(0,0,0,.6) inset,
+    /* Left and right rim depth */
+    3px 0 6px rgba(0,0,0,.35) inset,
+    -3px 0 6px rgba(0,0,0,.35) inset,
+    /* Contact shadow directly below the remote */
+    0 4px 12px rgba(0,0,0,.9),
+    /* Wide ambient shadow for floating depth */
+    0 18px 48px rgba(0,0,0,.7),
+    /* Far glow shadow */
+    0 32px 80px rgba(0,0,0,.4);
+
+  /* Border: near-black all around with subtle top lighter edge */
+  border-top: 1px solid #4a4a4a;
+  border-left: 1px solid #3a3a3a;
+  border-right: 1px solid #1a1a1a;
+  border-bottom: 1px solid #0a0a0a;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  user-select: none;
+  transition: transform .25s cubic-bezier(.16,1,.3,1), box-shadow .25s ease;
+}
+.sr-body:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    -1px -1px 0 #555,
+    0 3px 8px rgba(255,255,255,.07) inset,
+    0 -4px 12px rgba(0,0,0,.6) inset,
+    3px 0 6px rgba(0,0,0,.35) inset,
+    -3px 0 6px rgba(0,0,0,.35) inset,
+    0 6px 16px rgba(0,0,0,.95),
+    0 24px 56px rgba(0,0,0,.75),
+    0 40px 90px rgba(0,0,0,.45);
+}
+
+/* ── Top bar (POWER + MUTE row) ── */
+.sr-top-bar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0 4px;
+}
+.sr-top-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+.sr-top-col--right {
+  align-items: flex-end;
+}
+
+.sr-label {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: .13em;
+  color: #6a6a6a;
+  text-transform: uppercase;
+  font-family: 'Arial', sans-serif;
+}
+
+/* ── Pill buttons (POWER / MUTE) ── */
+.sr-pill-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  outline: none;
+  transition: transform .12s ease, box-shadow .12s ease;
+
+  /* Recessed plastic socket that holds the button */
+  background: radial-gradient(circle at 45% 35%, #2e2e2e, #111 80%);
+  box-shadow:
+    /* outer socket ring */
+    0 0 0 2px #0d0d0d,
+    /* inset depth of socket */
+    0 2px 5px rgba(0,0,0,.9) inset,
+    0 -1px 2px rgba(255,255,255,.06) inset,
+    /* ambient shadow under button */
+    0 3px 8px rgba(0,0,0,.7);
+}
+.sr-pill-btn:active {
+  transform: scale(.88);
+  box-shadow:
+    0 0 0 2px #0d0d0d,
+    0 4px 8px rgba(0,0,0,.95) inset,
+    0 1px 3px rgba(0,0,0,.6);
+}
+
+/* POWER LED cap */
+.sr-power-led {
+  display: block;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  /* Default OFF: dark grey puck */
+  background: radial-gradient(circle at 35% 28%, #4a4a4a, #1e1e1e 70%);
+  box-shadow:
+    0 1px 3px rgba(0,0,0,.8),
+    0 -1px 0 rgba(255,255,255,.08) inset;
+  transition: background .2s ease, box-shadow .3s ease;
+}
+/* ON state: vivid glowing green matching reference */
+.sr-power-on .sr-power-led {
+  background: radial-gradient(circle at 35% 28%, #a0ff90, #00cc00 55%, #007700 100%);
+  box-shadow:
+    /* tight glow core */
+    0 0 4px 2px rgba(0,210,0,.9),
+    /* medium halo */
+    0 0 10px 4px rgba(0,180,0,.55),
+    /* wide ambient green bloom */
+    0 0 22px 8px rgba(0,140,0,.28),
+    /* specular top-left on the cap */
+    inset 0 2px 3px rgba(255,255,255,.55);
+}
+
+/* MUTE puck */
+.sr-mute-dot {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 28%, #888, #4a4a4a 60%, #333 100%);
+  box-shadow:
+    0 1px 3px rgba(0,0,0,.7),
+    inset 0 1px 0 rgba(255,255,255,.18),
+    inset 0 -1px 0 rgba(0,0,0,.5);
+  transition: background .2s ease, box-shadow .25s ease;
+}
+/* Active mute: red glow */
+.sr-muted .sr-mute-dot {
+  background: radial-gradient(circle at 35% 28%, #ff9999, #cc2222 55%, #880000 100%);
+  box-shadow:
+    0 0 4px 2px rgba(220,0,0,.8),
+    0 0 10px 4px rgba(180,0,0,.45),
+    0 0 20px 7px rgba(140,0,0,.25),
+    inset 0 2px 3px rgba(255,255,255,.45);
+}
+
+/* ── D‑Pad ring ── */
+.sr-dpad-ring {
+  position: relative;
+  width: 152px;
+  height: 152px;
+}
+
+/* Shared arc segment styles */
+.sr-arc {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  color: #ddd;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  font-family: 'Arial', sans-serif;
+
+  /* Raised plastic petal: lighter in middle, darker edges */
+  background: linear-gradient(180deg,
+    #6e6e6e 0%,
+    #585858 35%,
+    #484848 65%,
+    #3a3a3a 100%
+  );
+
+  /* Realistic petal shadow stack */
+  box-shadow:
+    /* top specular line */
+    0 -1px 0 rgba(255,255,255,.18) inset,
+    /* bottom shadow */
+    0 2px 0 rgba(0,0,0,.5) inset,
+    /* ambient under petal */
+    0 3px 8px rgba(0,0,0,.65),
+    /* contact shadow onto the ring */
+    0 1px 2px rgba(0,0,0,.8);
+
+  transition: filter .1s ease, transform .1s ease, box-shadow .1s ease;
+}
+.sr-arc:hover {
+  filter: brightness(1.18);
+  background: linear-gradient(180deg,
+    #7a7a7a 0%,
+    #646464 35%,
+    #545454 65%,
+    #464646 100%
+  );
+}
+.sr-arc:active {
+  filter: brightness(.82);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.08) inset,
+    0 3px 4px rgba(0,0,0,.7) inset,
+    0 1px 3px rgba(0,0,0,.9);
+}
+
+/* ── Arc shapes (no text paddings, pure button shapes) ── */
+.sr-arc--top {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 84px;
+  height: 54px;
+  border-radius: 60px 60px 0 0;
+  clip-path: ellipse(50% 100% at 50% 0%);
+}
+.sr-arc--top:active { transform: translateX(-50%) translateY(2px); }
+
+.sr-arc--bottom {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 84px;
+  height: 54px;
+  border-radius: 0 0 60px 60px;
+  clip-path: ellipse(50% 100% at 50% 100%);
+  /* flip gradient so highlight is now at bottom */
+  background: linear-gradient(0deg,
+    #6e6e6e 0%,
+    #585858 35%,
+    #484848 65%,
+    #3a3a3a 100%
+  );
+}
+.sr-arc--bottom:active { transform: translateX(-50%) translateY(-2px); }
+
+.sr-arc--left {
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: 54px;
+  height: 84px;
+  border-radius: 60px 0 0 60px;
+  clip-path: ellipse(100% 50% at 0% 50%);
+  /* highlight on left edge */
+  background: linear-gradient(90deg,
+    #6e6e6e 0%,
+    #585858 35%,
+    #484848 65%,
+    #3a3a3a 100%
+  );
+}
+.sr-arc--left:active { transform: translateY(-50%) translateX(2px); }
+
+.sr-arc--right {
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  width: 54px;
+  height: 84px;
+  border-radius: 0 60px 60px 0;
+  clip-path: ellipse(100% 50% at 100% 50%);
+  background: linear-gradient(270deg,
+    #6e6e6e 0%,
+    #585858 35%,
+    #484848 65%,
+    #3a3a3a 100%
+  );
+}
+.sr-arc--right:active { transform: translateY(-50%) translateX(-2px); }
+
+/* ── Absolute positioned labels over D-pad arcs for perfect concentric balancing ── */
+.sr-dpad-label {
+  position: absolute;
+  pointer-events: none; /* Make click-through to buttons below */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  color: #ddd;
+  font-family: 'Arial', sans-serif;
+  font-weight: 700;
+  letter-spacing: .06em;
+}
+
+.sr-dpad-label--top {
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column;
+  gap: 1px;
+}
+
+.sr-dpad-label--bottom {
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column;
+  gap: 1px;
+}
+
+.sr-dpad-label--left {
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  flex-direction: row;
+  gap: 3px;
+}
+
+.sr-dpad-label--right {
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  flex-direction: row;
+  gap: 3px;
+}
+
+/* ── Arc label/arrow sizing ── */
+.sr-arc-arrow {
+  font-size: 9px;
+  line-height: 1;
+}
+.sr-arc-arrow--up, .sr-arc-arrow--down {
+  font-size: 8px;
+}
+.sr-arc-text {
+  font-size: 7.5px;
+  line-height: 1;
+  white-space: nowrap;
+  color: #e0e0e0;
+}
+.sr-arc-text--left, .sr-arc-text--right {
+  font-size: 7.5px;
+}
+
+/* ── Center OK button ── */
+.sr-ok-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+
+  /* Dark recessed disc */
+  background: radial-gradient(circle at 40% 32%,
+    #3c3c3c 0%,
+    #252525 50%,
+    #181818 100%
+  );
+
+  /* Multi-layer shadows for recessed look */
+  border: 2.5px solid #0d0d0d;
+  box-shadow:
+    /* bright specular top-left arc */
+    -1px -1px 0 rgba(255,255,255,.15),
+    /* inset depth */
+    0 3px 10px rgba(0,0,0,.85) inset,
+    0 -1px 2px rgba(255,255,255,.08) inset,
+    /* ambient under disc */
+    0 4px 12px rgba(0,0,0,.75),
+    0 1px 3px rgba(0,0,0,.9);
+
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  transition: filter .1s ease, transform .1s ease, box-shadow .1s ease;
+  z-index: 10;
+}
+.sr-ok-btn:hover {
+  filter: brightness(1.22);
+}
+.sr-ok-btn:active {
+  filter: brightness(.75);
+  transform: translate(-50%, -50%) scale(.92);
+  box-shadow:
+    0 5px 14px rgba(0,0,0,.95) inset,
+    0 1px 3px rgba(0,0,0,.9);
+}
+
+.sr-ok-stop-icon {
+  color: #bbb;
+  font-size: 13px;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0,0,0,.8);
+}
+.sr-ok-label {
+  color: #aaa;
+  font-size: 8px;
+  font-weight: 700;
+  font-family: 'Arial', sans-serif;
+  letter-spacing: .12em;
+  text-shadow: 0 1px 2px rgba(0,0,0,.8);
+}
+
+/* ── Lower body (glossy lower area like reference) ── */
+.sr-lower-body {
+  width: 100%;
+  flex: 1;
+  min-height: 70px;
+  position: relative;
+  border-radius: 0 0 32px 32px;
+  /* subtle specular sheen on lower half */
+  background: radial-gradient(
+    ellipse 70% 50% at 40% 30%,
+    rgba(255,255,255,.04),
+    transparent 80%
+  );
+}
