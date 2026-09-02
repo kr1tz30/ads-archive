@@ -101,7 +101,10 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
     incomingVideo.src = targetSrc;
     incomingVideo.load();
 
-    const handleReadyToSwap = () => {
+    let swapped = false;
+    const doSwap = () => {
+      if (swapped) return;
+      swapped = true;
       incomingVideo.muted = Boolean(isMuted);
       const playPromise = incomingVideo.play();
       if (playPromise !== undefined) {
@@ -126,10 +129,15 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
       }
     };
 
-    incomingVideo.addEventListener("canplay", handleReadyToSwap, { once: true });
+    // Swap as soon as first frame is ready
+    incomingVideo.addEventListener("loadeddata", doSwap, { once: true });
+    incomingVideo.addEventListener("canplay", doSwap, { once: true });
+    const fallbackTimer = setTimeout(doSwap, 180);
 
     return () => {
-      incomingVideo.removeEventListener("canplay", handleReadyToSwap);
+      clearTimeout(fallbackTimer);
+      incomingVideo.removeEventListener("loadeddata", doSwap);
+      incomingVideo.removeEventListener("canplay", doSwap);
     };
   }, [ad?.videoUrl, useLocalVideo, getVideoSrc, isMuted, safePause, safePlay]);
 
