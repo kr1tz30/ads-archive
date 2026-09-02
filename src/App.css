@@ -776,15 +776,37 @@ html, body {
   z-index: 2;
 }
 
+.tv-dual-video-wrapper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
 .yt-player,
 .yt-player iframe,
 .html5-video-player {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   border: none;
   object-fit: contain;
   pointer-events: none;
   filter: brightness(1.15) contrast(1.06) saturate(1.08);
+  transition: opacity 0.08s ease;
+}
+
+.html5-video-player.is-active {
+  opacity: 1;
+  z-index: 2;
+  visibility: visible;
+}
+
+.html5-video-player.is-inactive {
+  opacity: 0;
+  z-index: 1;
+  visibility: hidden;
 }
 
 .tv-empty {

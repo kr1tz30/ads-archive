@@ -500,6 +500,7 @@ function App() {
                 <>
                   <VideoPlayer
                     ad={currentAd}
+                    nextAd={ads[(currentIndex + 1) % ads.length]}
                     onReady={handleReady}
                     onStateChange={handleStateChange}
                     playerRef={playerRef}
