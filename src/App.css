@@ -65,6 +65,29 @@ html, body {
   }
 }
 
+/* PORTRAIT / NARROW VIEWPORTS (phones, tablets in portrait, any screen
+   narrower than 16:9): instead of shrinking the whole 16:9 scene to fit
+   inside the viewport (which leaves it tiny with huge black bars), scale
+   it UP until it covers the full screen and let .room's overflow:hidden
+   crop the excess left/right. Every interactive element inside is
+   positioned as a % of this same box, so nothing needs to be
+   repositioned — the TV, remote, and touch zones all stay perfectly
+   aligned and end up bigger and more prominent than on desktop. */
+@media (max-aspect-ratio: 16/9) {
+  .room-scene {
+    width: max(100vw, calc(100vh * 16 / 9));
+    height: auto;
+    max-width: none;
+    max-height: none;
+  }
+
+  @supports (height: 100dvh) {
+    .room-scene {
+      width: max(100vw, calc(100dvh * 16 / 9));
+    }
+  }
+}
+
 .room-bg-img {
   width: 100%;
   height: 100%;
