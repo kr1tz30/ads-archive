@@ -79,6 +79,9 @@ html, body {
     height: auto;
     max-width: none;
     max-height: none;
+    /* .room is a flex container — without this, flexbox shrinks the box
+       back down to fit instead of letting it overflow to be cropped. */
+    flex-shrink: 0;
   }
 
   @supports (height: 100dvh) {
