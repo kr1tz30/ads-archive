@@ -378,6 +378,84 @@ html, body {
   z-index: -1;
 }
 
+/* AMBIENT GLOW AURA AROUND CLOSED REMOTE (VISIBLE ONLY WHEN NOT OPEN) */
+.mini-remote-wrapper::after {
+  content: "";
+  position: absolute;
+  top: -30px;
+  left: -30px;
+  right: -30px;
+  height: 160px;
+  background: radial-gradient(
+    ellipse 160px 100px at 50% 25%,
+    rgba(244, 200, 105, 0.6) 0%,
+    rgba(244, 200, 105, 0.28) 45%,
+    transparent 75%
+  );
+  border-radius: 50% 50% 0 0;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 1;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  animation: remoteAmbientPulse 2.4s ease-in-out infinite alternate;
+}
+
+/* HIDE GLOW WHEN REMOTE IS OPEN (HOVERED OR EXPANDED) */
+.mini-remote-wrapper:hover::after,
+.mini-remote-wrapper.is-expanded::after {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  animation: none !important;
+}
+
+/* RIM GLOW ON REMOTE BODY ONLY WHEN CLOSED */
+.mini-remote-wrapper:not(.is-expanded) .sr-body {
+  animation: remoteBodyRimPulse 2.4s ease-in-out infinite alternate;
+}
+
+.mini-remote-wrapper:hover .sr-body,
+.mini-remote-wrapper.is-expanded .sr-body {
+  animation: none !important;
+}
+
+@keyframes remoteAmbientPulse {
+  0% {
+    opacity: 0.45;
+    transform: scale(0.96);
+    filter: blur(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.05);
+    filter: blur(12px);
+  }
+}
+
+@keyframes remoteBodyRimPulse {
+  0% {
+    box-shadow:
+      -1px -1px 0 #666,
+      0 3px 8px rgba(255,255,255,.07) inset,
+      0 -4px 12px rgba(0,0,0,.6) inset,
+      3px 0 6px rgba(0,0,0,.35) inset,
+      -3px 0 6px rgba(0,0,0,.35) inset,
+      0 -4px 18px rgba(244, 200, 105, 0.35),
+      0 -8px 36px rgba(244, 200, 105, 0.2),
+      0 18px 48px rgba(0,0,0,.7);
+  }
+  100% {
+    box-shadow:
+      -1px -1px 0 #f4c869,
+      0 3px 8px rgba(255,255,255,.15) inset,
+      0 -4px 12px rgba(0,0,0,.6) inset,
+      3px 0 6px rgba(0,0,0,.35) inset,
+      -3px 0 6px rgba(0,0,0,.35) inset,
+      0 -8px 28px rgba(244, 200, 105, 0.8),
+      0 -16px 54px rgba(244, 200, 105, 0.5),
+      0 18px 48px rgba(0,0,0,.7);
+  }
+}
+
 /* Desktop hover reveal */
 @media (hover: hover) and (pointer: fine) {
   .mini-remote-wrapper:hover {
@@ -415,7 +493,13 @@ html, body {
   z-index: 105;
   white-space: nowrap;
   touch-action: manipulation;
-  animation: pulseRemoteBadge 3s ease-in-out infinite;
+  animation: pulseRemoteBadge 2.4s ease-in-out infinite alternate;
+}
+
+.mini-remote-wrapper.is-expanded .remote-floating-badge {
+  animation: none !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8);
+  border-color: rgba(244, 200, 105, 0.4);
 }
 
 .remote-badge-icon {
@@ -428,11 +512,13 @@ html, body {
 }
 
 @keyframes pulseRemoteBadge {
-  0%, 100% {
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85), 0 0 10px rgba(244, 200, 105, 0.3);
+  0% {
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85), 0 0 8px rgba(244, 200, 105, 0.25);
+    border-color: rgba(244, 200, 105, 0.5);
   }
-  50% {
-    box-shadow: 0 4px 22px rgba(0, 0, 0, 0.95), 0 0 18px rgba(244, 200, 105, 0.65);
+  100% {
+    box-shadow: 0 4px 22px rgba(0, 0, 0, 0.95), 0 0 20px rgba(244, 200, 105, 0.8);
+    border-color: rgba(244, 200, 105, 0.95);
   }
 }
 
