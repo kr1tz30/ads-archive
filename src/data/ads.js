@@ -5,7 +5,7 @@
 export const ads = [
   {
     id: "vodafone-zoozoo",
-    title: "Vodafone ZooZoos — Special Collection",
+    title: "Vodafone ZooZoo — Celebrity Gossip",
     brand: "Vodafone",
     year: 2009,
     videoUrl: "/videos/vodafone-zoozoo.mp4",
