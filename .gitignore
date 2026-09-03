@@ -30,6 +30,10 @@ public/videos/*.mp4
 
 # Unused reference photos of unknown/unclear licensing (real photographs,
 # not referenced anywhere in the app) — don't publish these either.
-public/images/
+# 90s_tv_room_bg.jpg is the exception: it's original AI-illustrated
+# artwork actually used as the site's background, not a real photo, and
+# the live site needs it committed since deploys now build from git.
+public/images/*
+!public/images/90s_tv_room_bg.jpg
 public/retro-setup.jpg
 .vercel
