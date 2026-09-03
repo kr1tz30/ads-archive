@@ -35,5 +35,6 @@ public/videos/*.mp4
 # the live site needs it committed since deploys now build from git.
 public/images/*
 !public/images/90s_tv_room_bg.jpg
+!public/images/90s_tv_room_bg_mobile.jpg
 public/retro-setup.jpg
 .vercel

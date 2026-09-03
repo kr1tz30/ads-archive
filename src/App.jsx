@@ -480,11 +480,17 @@ function App() {
       >
         {/* 90S ROOM SCENE CONTAINER */}
         <div className="room-scene">
-          <img
-            src={`${import.meta.env.BASE_URL}images/90s_tv_room_bg.jpg`}
-            alt="90s Indian Nostalgia TV Room"
-            className="room-bg-img"
-          />
+          <picture className="room-bg-picture">
+            <source
+              media="(max-aspect-ratio: 16/9)"
+              srcSet={`${import.meta.env.BASE_URL}images/90s_tv_room_bg_mobile.jpg`}
+            />
+            <img
+              src={`${import.meta.env.BASE_URL}images/90s_tv_room_bg.jpg`}
+              alt="90s Indian Nostalgia TV Room"
+              className="room-bg-img"
+            />
+          </picture>
 
           {/* SUNBEAM AMBIENT SHIMMER */}
           <div className="animated-sunbeam-overlay" />

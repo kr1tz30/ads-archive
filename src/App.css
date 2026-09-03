@@ -73,22 +73,12 @@ html, body {
    positioned as a % of this same box, so nothing needs to be
    repositioned — the TV, remote, and touch zones all stay perfectly
    aligned and end up bigger and more prominent than on desktop. */
-@media (max-aspect-ratio: 16/9) {
-  .room-scene {
-    width: max(100vw, calc(100vh * 16 / 9));
-    height: auto;
-    max-width: none;
-    max-height: none;
-    /* .room is a flex container — without this, flexbox shrinks the box
-       back down to fit instead of letting it overflow to be cropped. */
-    flex-shrink: 0;
-  }
 
-  @supports (height: 100dvh) {
-    .room-scene {
-      width: max(100vw, calc(100dvh * 16 / 9));
-    }
-  }
+
+.room-bg-picture {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .room-bg-img {
@@ -285,6 +275,53 @@ html, body {
   height: 100%;
   aspect-ratio: unset;
   border-radius: 12px;
+}
+
+/* PORTRAIT / NARROW VIEWPORTS (phones, tablets in portrait):
+   Uses the 9:19.5 portrait room scene artwork (90s_tv_room_bg_mobile.jpg).
+   The TV screen tube is larger and centered for mobile viewability. */
+@media (max-aspect-ratio: 16/9) {
+  .room-scene {
+    width: min(100vw, calc(100vh * 393 / 852));
+    height: min(100vh, calc(100vw * 852 / 393));
+    max-width: 100vw;
+    max-height: 100vh;
+    aspect-ratio: 393 / 852;
+    margin: auto;
+    flex-shrink: 0;
+  }
+
+  @supports (height: 100dvh) {
+    .room-scene {
+      width: min(100vw, calc(100dvh * 393 / 852));
+      height: min(100dvh, calc(100vw * 852 / 393));
+      max-height: 100dvh;
+    }
+  }
+
+  /* CRT TV screen tube positioning aligned to 90s_tv_room_bg_mobile.jpg */
+  .room-tv-screen-wrapper {
+    left: 22.39%;
+    top: 35.92%;
+    width: 46.31%;
+    height: 15.49%;
+    border-radius: 4px;
+    transform: scale(1.05);
+    transform-origin: center center;
+  }
+
+  .room-tv-screen-wrapper .tv-screen {
+    border-radius: 4px;
+  }
+
+  /* Ceiling fan position aligned to 90s_tv_room_bg_mobile.jpg */
+  .animated-fan-container {
+    top: 15.5%;
+    right: auto;
+    left: 77.0%;
+    width: 23.0%;
+    height: 11.0%;
+  }
 }
 
 .tv-antenna {
