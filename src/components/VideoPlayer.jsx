@@ -38,8 +38,12 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
     (targetVideo) => {
       const video = targetVideo || getActiveVideo();
       if (!video) return;
+      // Mute is already kept in sync independently (the `muted` prop on
+      // both <video> elements, plus the sync effect below) — setting it
+      // here too would make this function's identity depend on isMuted,
+      // which would re-trigger the buffer-switch effect on every mute
+      // toggle and restart the video for no reason.
       try {
-        video.muted = Boolean(isMuted);
         const p = video.play();
         playPromiseRef.current = p;
         if (p !== undefined) {
@@ -49,7 +53,7 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
         // Ignore
       }
     },
-    [getActiveVideo, isMuted]
+    [getActiveVideo]
   );
 
   const safePause = useCallback(
@@ -72,7 +76,13 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
     [getActiveVideo]
   );
 
-  // Dual-buffered video source switcher — eliminates black screen gap completely
+  // Dual-buffered video source switcher — eliminates black screen gap completely.
+  // isMuted is intentionally NOT a dependency here: this effect's job is to
+  // load a fresh buffer and swap to it when the AD changes. It used to also
+  // include isMuted, so toggling mute re-ran this whole "load a new buffer
+  // and swap" flow and restarted the video from 0 for no reason — the mute
+  // state itself is already applied via the `muted` prop on both <video>
+  // elements and the separate sync effect below.
   useEffect(() => {
     if (!useLocalVideo) return;
     const targetSrc = getVideoSrc(ad?.videoUrl);
@@ -139,7 +149,8 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
       incomingVideo.removeEventListener("loadeddata", doSwap);
       incomingVideo.removeEventListener("canplay", doSwap);
     };
-  }, [ad?.videoUrl, useLocalVideo, getVideoSrc, isMuted, safePause, safePlay]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ad?.videoUrl, useLocalVideo, getVideoSrc, safePause, safePlay]);
 
   // Sync muted state across both video buffers
   useEffect(() => {
