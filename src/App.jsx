@@ -560,6 +560,11 @@ function App() {
 
                   {seekToast && <div className="tv-seek-toast">{seekToast}</div>}
 
+                  {/* AD COUNT / CURRENT POSITION — TOP RIGHT OF SCREEN */}
+                  <div className="tv-ad-counter" aria-label={`Ad ${currentIndex + 1} of ${ads.length}`}>
+                    {currentIndex + 1} / {ads.length}
+                  </div>
+
                   {/* MUTE INDICATOR ICON ON SCREEN */}
                   {isMuted && (
                     <div className="tv-mute-icon" aria-label="Muted">🔇</div>
