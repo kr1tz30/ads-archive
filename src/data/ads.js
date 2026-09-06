@@ -174,16 +174,6 @@ export const ads = [
     review: "Thanda thanda cool cool — Amitabh Bachchan sings as #RaahatRaja.",
   },
   {
-    id: "melody-itni-chocolaty",
-    title: "Parle Melody — Itni Chocolaty Kyun Hai",
-    brand: "Melody",
-    year: null,
-    videoUrl: "/videos/melody.mp4",
-    youtubeId: "BKse4N_-ZuU",
-    confidence: "high",
-    review: "The eternal toffee question: Melody, itni chocolatey kyun hai?",
-  },
-  {
     id: "kingfisher",
     title: "Kingfisher — Oo La La Le",
     brand: "Kingfisher",
