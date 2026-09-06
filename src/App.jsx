@@ -8,12 +8,14 @@ const STATIC_DURATION_MS = 200;
 // YouTube shows a transient title/share/logo "intro card" for a moment at
 // the very start of any freshly loaded video — even with every native
 // control hidden via player params. It can't be suppressed, only masked:
-// keep the screen covered (muted, black) for a short buffer after a video
-// starts, then reveal it once that flash has passed. No-op visually for
-// local mp4 playback (nothing to hide there), but essential whenever the
-// YouTube fallback is used (e.g. on the live site, where local files
-// aren't published).
-const SETTLE_DURATION_MS = 1200;
+// keep the screen covered (muted, black) for a buffer after a video
+// starts, then reveal it once that flash has passed. Only the YouTube
+// fallback actually needs the long buffer; local mp4 playback (now the
+// common case, since the clips are committed) has nothing to mask, so it
+// only needs a brief moment for the video element to render its first
+// frame.
+const SETTLE_DURATION_MS_YOUTUBE = 1200;
+const SETTLE_DURATION_MS_LOCAL = 150;
 
 function App() {
   const playableAds = useMemo(
@@ -33,6 +35,7 @@ function App() {
   const hasStartedCurrentRef = useRef(false);
   const isFirstMountRef = useRef(true);
   const staticAudioRef = useRef(null);
+  const settleDurationRef = useRef(SETTLE_DURATION_MS_LOCAL);
 
   useEffect(() => {
     const audio = new Audio("/audio/tv-static.mp3");
@@ -92,6 +95,13 @@ function App() {
       return;
     }
 
+    // Local mp4 playback has no YouTube chrome to mask, so it only needs
+    // a brief settle; the long buffer is reserved for the YouTube
+    // fallback (used when a local file is missing).
+    settleDurationRef.current = currentAd?.videoUrl
+      ? SETTLE_DURATION_MS_LOCAL
+      : SETTLE_DURATION_MS_YOUTUBE;
+
     setTransitionPhase("static");
     const staticAudio = staticAudioRef.current;
     if (staticAudio) {
@@ -148,7 +158,7 @@ function App() {
       }
       setIsPlaying(true);
       setTransitionPhase("none");
-    }, SETTLE_DURATION_MS);
+    }, settleDurationRef.current);
     return () => clearTimeout(settleTimer);
   }, [transitionPhase]);
 
