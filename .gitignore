@@ -23,11 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
-# Locally-downloaded copies of the actual copyrighted ad clips — never
-# publish these. The deployed site plays every ad via its YouTube embed
-# instead; see public/videos/README.md.
-public/videos/*.mp4
-
 # Unused reference photos of unknown/unclear licensing (real photographs,
 # not referenced anywhere in the app) — don't publish these either.
 # 90s_tv_room_bg.jpg is the exception: it's original AI-illustrated

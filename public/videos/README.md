@@ -1,14 +1,11 @@
-# Local video files not included
+# Local ad clips
 
-This folder is used for local-only playback of the actual ad clips
-(`ads.js` entries with a `videoUrl`), but the `.mp4` files themselves are
-**not committed to this repo** — they're downloaded copies of copyrighted
-TV commercials, and publishing them would be a copyright/DMCA risk.
+The `.mp4` files in this folder are committed to the repo and served
+directly by the deployed site (`VideoPlayer.jsx` prefers a local
+`videoUrl` over the YouTube embed for every ad — see `src/data/ads.js`).
 
-The deployed site doesn't need them: `VideoPlayer.jsx` falls back to that
-ad's YouTube embed (`youtubeId`) automatically whenever a local file is
-missing, which is exactly what happens here on GitHub Pages.
-
-If you're running this locally and want the local-file experience, drop
-matching `.mp4` files into this folder yourself — filenames are referenced
-in `src/data/ads.js`.
+**Note on copyright:** these are downloaded copies of the actual TV
+commercials, not original content — publishing them here was a
+deliberate, informed decision, not an oversight. If a file ever goes
+missing (e.g. it's still gitignored, or was removed), `VideoPlayer.jsx`
+falls back to that ad's YouTube embed (`youtubeId`) automatically.
