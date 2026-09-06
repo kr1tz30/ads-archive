@@ -1308,7 +1308,7 @@ html, body {
 
   .mini-remote-wrapper.is-expanded,
   .mini-remote-wrapper:hover {
-    transform: translateX(-50%) translateY(0%) scale(0.9);
+    transform: translateX(-50%) translateY(30%) scale(0.9);
   }
 
   .remote-floating-badge {
@@ -1325,7 +1325,7 @@ html, body {
   }
 
   .mini-remote-wrapper.is-expanded {
-    transform: translateX(-50%) translateY(0%) scale(0.8) !important;
+    transform: translateX(-50%) translateY(30%) scale(0.8) !important;
   }
 
   .remote-floating-badge {
@@ -1375,7 +1375,7 @@ html, body {
   }
 
   .mini-remote-wrapper.is-expanded {
-    transform: translateX(-50%) translateY(0%) scale(0.74) !important;
+    transform: translateX(-50%) translateY(30%) scale(0.74) !important;
   }
 
   .remote-floating-badge {
@@ -1410,7 +1410,7 @@ html, body {
 
   .mini-remote-wrapper.is-expanded,
   .mini-remote-wrapper:hover {
-    transform: translateX(-50%) translateY(0%) scale(0.62) !important;
+    transform: translateX(-50%) translateY(30%) scale(0.62) !important;
   }
 
   .remote-floating-badge {
@@ -1439,7 +1439,10 @@ html, body {
 
   .mini-remote-wrapper.is-expanded,
   .mini-remote-wrapper:hover {
-    transform: translateX(-50%) translateY(0%) scale(1) !important;
+    /* Cap the "expanded" reveal at 70% of the remote's height on
+       mobile, instead of fully revealing it — the bottom 30% stays
+       hidden below the fold. */
+    transform: translateX(-50%) translateY(30%) scale(1) !important;
   }
 }
 
