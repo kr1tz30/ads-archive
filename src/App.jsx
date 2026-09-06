@@ -5,6 +5,15 @@ import { ads as rawAds } from "./data/ads.js";
 import "./App.css";
 
 const STATIC_DURATION_MS = 200;
+// YouTube shows a transient title/share/logo "intro card" for a moment at
+// the very start of any freshly loaded video — even with every native
+// control hidden via player params. It can't be suppressed, only masked:
+// keep the screen covered (muted, black) for a short buffer after a video
+// starts, then reveal it once that flash has passed. No-op visually for
+// local mp4 playback (nothing to hide there), but essential whenever the
+// YouTube fallback is used (e.g. on the live site, where local files
+// aren't published).
+const SETTLE_DURATION_MS = 1200;
 
 function App() {
   const playableAds = useMemo(
@@ -96,6 +105,16 @@ function App() {
         staticAudio.currentTime = 0;
       }
       const player = playerRef.current;
+      // Mute before starting playback so the settle buffer below is
+      // silent too — restored to the user's actual mute preference once
+      // the buffer ends.
+      if (player?.mute) {
+        try {
+          player.mute();
+        } catch {
+          // Ignore
+        }
+      }
       if (player && player.playVideo) {
         try {
           player.playVideo();
@@ -103,9 +122,8 @@ function App() {
           // Ignore
         }
       }
-      setIsPlaying(true);
       hasStartedCurrentRef.current = true;
-      setTransitionPhase("none");
+      setTransitionPhase("settling");
     }, STATIC_DURATION_MS);
 
     return () => {
@@ -116,6 +134,23 @@ function App() {
       }
     };
   }, [currentIndex]);
+
+  useEffect(() => {
+    if (transitionPhase !== "settling") return;
+    const settleTimer = setTimeout(() => {
+      const player = playerRef.current;
+      if (!isMutedRef.current && player?.unMute) {
+        try {
+          player.unMute();
+        } catch {
+          // Ignore
+        }
+      }
+      setIsPlaying(true);
+      setTransitionPhase("none");
+    }, SETTLE_DURATION_MS);
+    return () => clearTimeout(settleTimer);
+  }, [transitionPhase]);
 
   const hasUserInteractedRef = useRef(false);
 
@@ -524,6 +559,10 @@ function App() {
                     <div className="tv-static-overlay">
                       <span className="tv-static-roll" />
                     </div>
+                  )}
+
+                  {transitionPhase === "settling" && (
+                    <div className="tv-settle-cover" />
                   )}
 
                   {transitionPhase === "none" && (currentAd?.videoUrl || currentAd?.youtubeId) && (
