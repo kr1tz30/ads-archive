@@ -296,7 +296,13 @@ html, body {
 /* PORTRAIT / NARROW VIEWPORTS (phones, tablets in portrait):
    Uses the 9:19.5 portrait room scene artwork (90s_tv_room_bg_mobile.jpg).
    The TV screen tube is larger and centered for mobile viewability. */
-@media (max-aspect-ratio: 16/9) {
+/* (max-aspect-ratio: 16/9) alone isn't a safe mobile check — it also
+   matches plain 1920x1080 desktops (and most 16:10 laptops), since
+   that's exactly 16:9. Combined with a real max-width so this entire
+   block (scene sizing, TV positioning, fan positioning, and the mobile
+   background image swap via <picture> in App.jsx) only applies on
+   genuinely small/narrow devices. */
+@media (max-aspect-ratio: 16/9) and (max-width: 1024px) {
   .room-scene {
     width: min(100vw, calc(100vh * 393 / 852));
     height: min(100vh, calc(100vw * 852 / 393));

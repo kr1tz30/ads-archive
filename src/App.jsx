@@ -517,7 +517,7 @@ function App() {
         <div className="room-scene">
           <picture className="room-bg-picture">
             <source
-              media="(max-aspect-ratio: 16/9)"
+              media="(max-aspect-ratio: 16/9) and (max-width: 1024px)"
               srcSet={`${import.meta.env.BASE_URL}images/90s_tv_room_bg_mobile.jpg`}
             />
             <img
