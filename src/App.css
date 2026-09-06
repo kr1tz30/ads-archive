@@ -1392,3 +1392,25 @@ html, body {
   }
 }
 
+/* Zoom the whole page in by +25% on genuinely small/narrow devices only.
+   (max-aspect-ratio: 16/9) alone isn't a safe mobile check — it also
+   matches plain 1920x1080 desktops, since that's exactly 16:9 — so it's
+   combined with a real max-width here, matching this file's own
+   tablet/phone breakpoint (1024px) used elsewhere. Placed last so it
+   wins over the width/height breakpoint rules above it. */
+@media (max-aspect-ratio: 16/9) and (max-width: 1024px) {
+  .room-scene {
+    transform: scale(1.25);
+    transform-origin: center center;
+  }
+
+  .mini-remote-wrapper {
+    transform: translateX(-50%) translateY(70%) scale(1) !important;
+  }
+
+  .mini-remote-wrapper.is-expanded,
+  .mini-remote-wrapper:hover {
+    transform: translateX(-50%) translateY(0%) scale(1) !important;
+  }
+}
+
