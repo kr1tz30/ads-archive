@@ -234,16 +234,6 @@ export const ads = [
     review: "The 'evolution of man' ad that made a mint feel like a lightbulb moment.",
   },
   {
-    id: "centerfresh-kaisi-jeebh-laplapayee",
-    title: "Center Fresh / Fruit — Kaisi Jeebh Laplapayee",
-    brand: "Center Fresh",
-    year: null,
-    videoUrl: "/videos/centerfresh-laplapayee.mp4",
-    youtubeId: "fvWBDWaX-Xg",
-    confidence: "high",
-    review: "'Kessie Jeep Laplabai' decoded: it's 'Kaisi Jeebh Laplapayee' — how the tongue tingles.",
-  },
-  {
     id: "dhara-jalebi",
     title: "Dhara — Jalebi (Ghar Chhod Ke Mat Jao, Jalebi!)",
     brand: "Dhara",
