@@ -311,8 +311,6 @@ html, body {
     aspect-ratio: 851 / 1847;
     margin: auto;
     flex-shrink: 0;
-    transform: scale(1.05);
-    transform-origin: center center;
   }
 
   @supports (height: 100dvh) {
@@ -334,6 +332,18 @@ html, body {
       height: min(100svh, calc(100vw * 1847 / 851));
       max-height: 100svh;
     }
+  }
+
+  /* Scale up just the background artwork slightly for a tighter,
+     edge-to-edge fit on mobile — not .room-scene itself, since that
+     container also positions the TV/remote hit-zones as percentages,
+     and scaling it would drag those out of alignment with the image
+     underneath. .room-scene keeps overflow:hidden (see base rule
+     above), so the extra 5% is simply cropped off evenly at the
+     edges. */
+  .room-bg-img {
+    transform: scale(1.05);
+    transform-origin: center center;
   }
 
   /* CRT TV screen tube positioning aligned to 90s_tv_room_bg_mobile.jpg */
