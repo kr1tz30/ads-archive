@@ -93,7 +93,16 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
       const v0 = videoRef0.current;
       if (v0) {
         v0.src = targetSrc;
-        v0.muted = Boolean(isMuted);
+        // Browsers block autoplay-with-sound on a page nobody has
+        // interacted with yet, but always allow autoplay muted — and
+        // allow unmuting a split second later, once playback has
+        // already started, without needing a fresh gesture. So the
+        // very first video always starts muted here; the "sync muted
+        // state" effect below runs right after this one on mount and
+        // immediately flips it to the real isMuted value, so it's
+        // effectively instant. Without this, the first video would
+        // silently fail to autoplay at all for a first-time visitor.
+        v0.muted = true;
         v0.load();
         safePlay(v0);
       }

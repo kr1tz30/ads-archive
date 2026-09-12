@@ -43,7 +43,15 @@ export default function YouTubePlayer({ videoId, onReady, onStateChange, playerR
     // Pre-create iframe with explicit allow="autoplay; encrypted-media" feature policy
     const iframe = document.createElement("iframe");
     const origin = typeof window !== "undefined" && window.location?.origin ? window.location.origin : "";
-    iframe.src = `https://www.youtube.com/embed/${videoId || ""}?autoplay=1&mute=${isMuted ? 1 : 0}&controls=0&rel=0&playsinline=1&enablejsapi=1&cc_load_policy=0&iv_load_policy=3&disablekb=1&modestbranding=1&fs=0${origin ? `&origin=${encodeURIComponent(origin)}` : ""}`;
+    // Always request muted autoplay here, even if isMuted is false — an
+    // embedded iframe is just as subject to the browser's "no unmuted
+    // autoplay without a prior gesture" policy as a plain <video>, and a
+    // fresh visitor hasn't given one yet. Requesting mute=1 guarantees
+    // playback actually starts; onReady below immediately unmutes it
+    // (unless the user wants it muted), which browsers allow since
+    // that's just adjusting an already-playing element, not starting a
+    // new one.
+    iframe.src = `https://www.youtube.com/embed/${videoId || ""}?autoplay=1&mute=1&controls=0&rel=0&playsinline=1&enablejsapi=1&cc_load_policy=0&iv_load_policy=3&disablekb=1&modestbranding=1&fs=0${origin ? `&origin=${encodeURIComponent(origin)}` : ""}`;
     iframe.setAttribute("allow", "autoplay; encrypted-media; picture-in-picture");
     iframe.setAttribute("allowfullscreen", "1");
     iframe.style.width = "100%";
