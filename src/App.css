@@ -346,14 +346,18 @@ html, body {
     transform-origin: center center;
   }
 
-  /* CRT TV screen tube positioning aligned to 90s_tv_room_bg_mobile.jpg */
+  /* CRT TV screen tube positioning aligned to 90s_tv_room_bg_mobile.jpg.
+     Scale is 1.26 = the original 1.05 edge-fit nudge x 1.2 (20% bigger
+     video player, per request) — this now intentionally overlaps the
+     TV's plastic bezel slightly rather than sitting flush inside the
+     screen glass. */
   .room-tv-screen-wrapper {
     left: 22.9%;
     top: 36.7%;
     width: 42.7%;
     height: 13.5%;
     border-radius: 4px;
-    transform: scale(1.05);
+    transform: scale(1.26);
     transform-origin: center center;
   }
 
