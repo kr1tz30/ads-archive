@@ -15,6 +15,16 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
   const [localVideoFailed, setLocalVideoFailed] = useState(false);
   const playPromiseRef = useRef(null);
   const isFirstMountRef = useRef(true);
+  // While true, the "sync muted state" effect below leaves the video
+  // alone instead of applying isMuted immediately. Chrome evaluates
+  // whether a muted autoplay is allowed lazily, at the moment playback
+  // actually begins — not synchronously when .play() is called — so
+  // flipping muted back to false right after calling play() (which
+  // used to happen via that sync effect running moments later in the
+  // same commit) gets evaluated as an unmuted autoplay and blocked.
+  // The lock stays on until the first video's own play() promise
+  // settles, at which point unmuting is genuinely safe.
+  const initialMuteLockRef = useRef(true);
 
   useEffect(() => {
     setLocalVideoFailed(false);
@@ -38,8 +48,6 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
     (targetVideo) => {
       const video = targetVideo || getActiveVideo();
       if (!video) return;
-      window.__dbg = window.__dbg || [];
-      window.__dbg.push({ t: performance.now(), fn: "safePlay", stack: new Error().stack });
       // Mute is already kept in sync independently (the `muted` prop on
       // both <video> elements, plus the sync effect below) — setting it
       // here too would make this function's identity depend on isMuted,
@@ -62,12 +70,9 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
     (targetVideo) => {
       const video = targetVideo || getActiveVideo();
       if (!video) return;
-      window.__dbg = window.__dbg || [];
-      window.__dbg.push({ t: performance.now(), fn: "safePause", stack: new Error().stack });
       const p = playPromiseRef.current;
       if (p !== undefined && p !== null) {
         p.then(() => {
-          window.__dbg.push({ t: performance.now(), fn: "safePause deferred pause() firing now" });
           try {
             video.pause();
           } catch {}
@@ -98,18 +103,31 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
       const v0 = videoRef0.current;
       if (v0) {
         v0.src = targetSrc;
-        // Browsers block autoplay-with-sound on a page nobody has
-        // interacted with yet, but always allow autoplay muted — and
-        // allow unmuting a split second later, once playback has
-        // already started, without needing a fresh gesture. So the
-        // very first video always starts muted here; the "sync muted
-        // state" effect below runs right after this one on mount and
-        // immediately flips it to the real isMuted value, so it's
-        // effectively instant. Without this, the first video would
-        // silently fail to autoplay at all for a first-time visitor.
+        // Browsers always allow autoplay muted, and allow unmuting
+        // once playback has genuinely begun, without needing a fresh
+        // gesture — but that permission is evaluated at the moment
+        // playback actually starts, not synchronously when .play() is
+        // called. So the unmute can't happen via some other effect
+        // that merely runs "soon after" on the same mount; it has to
+        // wait for this exact play() promise to resolve. The
+        // initialMuteLockRef keeps the separate "sync muted state"
+        // effect from touching this video in the meantime.
         v0.muted = true;
         v0.load();
-        safePlay(v0);
+        const p = v0.play();
+        playPromiseRef.current = p;
+        if (p !== undefined) {
+          p.then(() => {
+            v0.muted = Boolean(isMuted);
+            initialMuteLockRef.current = false;
+          }).catch(() => {
+            initialMuteLockRef.current = false;
+          });
+        } else {
+          initialMuteLockRef.current = false;
+        }
+      } else {
+        initialMuteLockRef.current = false;
       }
       return;
     }
@@ -166,8 +184,14 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ad?.videoUrl, useLocalVideo, getVideoSrc, safePause, safePlay]);
 
-  // Sync muted state across both video buffers
+  // Sync muted state across both video buffers. Skipped while
+  // initialMuteLockRef is held — see the comment on that ref: the very
+  // first video's own play().then() handles unmuting itself once
+  // playback has genuinely started, and this effect touching `muted`
+  // in the meantime would get that lazily-evaluated autoplay check to
+  // see an unmuted request and block it.
   useEffect(() => {
+    if (initialMuteLockRef.current) return;
     if (videoRef0.current) videoRef0.current.muted = Boolean(isMuted);
     if (videoRef1.current) videoRef1.current.muted = Boolean(isMuted);
   }, [isMuted]);
