@@ -15,16 +15,21 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
   const [localVideoFailed, setLocalVideoFailed] = useState(false);
   const playPromiseRef = useRef(null);
   const isFirstMountRef = useRef(true);
-  // While true, the "sync muted state" effect below leaves the video
-  // alone instead of applying isMuted immediately. Chrome evaluates
-  // whether a muted autoplay is allowed lazily, at the moment playback
-  // actually begins — not synchronously when .play() is called — so
-  // flipping muted back to false right after calling play() (which
-  // used to happen via that sync effect running moments later in the
-  // same commit) gets evaluated as an unmuted autoplay and blocked.
-  // The lock stays on until the first video's own play() promise
-  // settles, at which point unmuting is genuinely safe.
-  const initialMuteLockRef = useRef(true);
+  // Browsers always allow autoplay muted, but require a real user
+  // gesture (anywhere on the page) before allowing unmuted playback.
+  // Rather than fight that with imperative timing tricks against
+  // React's own re-renders (a `.muted = true` DOM mutation gets
+  // silently reverted the moment ANY re-render happens, since
+  // `muted={Boolean(isMuted)}` below is a React-controlled prop that
+  // gets reconciled back to the JSX value every render — including the
+  // `setIsPlaying(true)` re-render that fires moments after mount),
+  // this is modeled as actual React state so the JSX declaration is
+  // always the single source of truth for both video elements. Starts
+  // true so the very first video is guaranteed-autoplayable; flips to
+  // false once the user has genuinely interacted (see the exposed
+  // `mute`/`unMute` methods below, called from App.jsx's first-gesture
+  // listener and the mute button).
+  const [awaitingFirstInteraction, setAwaitingFirstInteraction] = useState(true);
 
   useEffect(() => {
     setLocalVideoFailed(false);
@@ -48,11 +53,9 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
     (targetVideo) => {
       const video = targetVideo || getActiveVideo();
       if (!video) return;
-      // Mute is already kept in sync independently (the `muted` prop on
-      // both <video> elements, plus the sync effect below) — setting it
-      // here too would make this function's identity depend on isMuted,
-      // which would re-trigger the buffer-switch effect on every mute
-      // toggle and restart the video for no reason.
+      // Muted state is fully owned by the `muted` JSX prop on both
+      // <video> elements (see awaitingFirstInteraction above) — never
+      // set `.muted` imperatively here or anywhere else in this file.
       try {
         const p = video.play();
         playPromiseRef.current = p;
@@ -91,8 +94,8 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
   // load a fresh buffer and swap to it when the AD changes. It used to also
   // include isMuted, so toggling mute re-ran this whole "load a new buffer
   // and swap" flow and restarted the video from 0 for no reason — the mute
-  // state itself is already applied via the `muted` prop on both <video>
-  // elements and the separate sync effect below.
+  // state itself is applied purely via the `muted` prop on both <video>
+  // elements (see awaitingFirstInteraction above), not touched here.
   useEffect(() => {
     if (!useLocalVideo) return;
     const targetSrc = getVideoSrc(ad?.videoUrl);
@@ -103,31 +106,8 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
       const v0 = videoRef0.current;
       if (v0) {
         v0.src = targetSrc;
-        // Browsers always allow autoplay muted, and allow unmuting
-        // once playback has genuinely begun, without needing a fresh
-        // gesture — but that permission is evaluated at the moment
-        // playback actually starts, not synchronously when .play() is
-        // called. So the unmute can't happen via some other effect
-        // that merely runs "soon after" on the same mount; it has to
-        // wait for this exact play() promise to resolve. The
-        // initialMuteLockRef keeps the separate "sync muted state"
-        // effect from touching this video in the meantime.
-        v0.muted = true;
         v0.load();
-        const p = v0.play();
-        playPromiseRef.current = p;
-        if (p !== undefined) {
-          p.then(() => {
-            v0.muted = Boolean(isMuted);
-            initialMuteLockRef.current = false;
-          }).catch(() => {
-            initialMuteLockRef.current = false;
-          });
-        } else {
-          initialMuteLockRef.current = false;
-        }
-      } else {
-        initialMuteLockRef.current = false;
+        safePlay(v0);
       }
       return;
     }
@@ -139,7 +119,6 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
 
     if (!incomingVideo) return;
 
-    incomingVideo.muted = Boolean(isMuted);
     incomingVideo.src = targetSrc;
     incomingVideo.load();
 
@@ -147,7 +126,6 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
     const doSwap = () => {
       if (swapped) return;
       swapped = true;
-      incomingVideo.muted = Boolean(isMuted);
       const playPromise = incomingVideo.play();
       if (playPromise !== undefined) {
         playPromise
@@ -184,18 +162,6 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ad?.videoUrl, useLocalVideo, getVideoSrc, safePause, safePlay]);
 
-  // Sync muted state across both video buffers. Skipped while
-  // initialMuteLockRef is held — see the comment on that ref: the very
-  // first video's own play().then() handles unmuting itself once
-  // playback has genuinely started, and this effect touching `muted`
-  // in the meantime would get that lazily-evaluated autoplay check to
-  // see an unmuted request and block it.
-  useEffect(() => {
-    if (initialMuteLockRef.current) return;
-    if (videoRef0.current) videoRef0.current.muted = Boolean(isMuted);
-    if (videoRef1.current) videoRef1.current.muted = Boolean(isMuted);
-  }, [isMuted]);
-
   // Expose player API to parent
   useEffect(() => {
     if (!useLocalVideo) return;
@@ -214,25 +180,21 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
         }
       },
       loadVideoById: () => {},
-      mute: () => {
-        if (videoRef0.current) videoRef0.current.muted = true;
-        if (videoRef1.current) videoRef1.current.muted = true;
-      },
-      unMute: () => {
-        if (videoRef0.current) videoRef0.current.muted = false;
-        if (videoRef1.current) videoRef1.current.muted = false;
-      },
+      // mute/unMute only ever flip awaitingFirstInteraction off — the
+      // actual `.muted` DOM property is fully owned by the `muted` JSX
+      // prop below, driven by (awaitingFirstInteraction || isMuted).
+      // Any real call here (explicit mute button, or the page's first-
+      // gesture listener) means the user has genuinely interacted, so
+      // it's always safe to hand control over to the isMuted prop from
+      // this point on.
+      mute: () => setAwaitingFirstInteraction(false),
+      unMute: () => setAwaitingFirstInteraction(false),
       setVolume: (val) => {
         try {
           const normVol = Math.max(0, Math.min(1, val / 100));
-          if (videoRef0.current) {
-            videoRef0.current.volume = normVol;
-            videoRef0.current.muted = normVol === 0;
-          }
-          if (videoRef1.current) {
-            videoRef1.current.volume = normVol;
-            videoRef1.current.muted = normVol === 0;
-          }
+          if (videoRef0.current) videoRef0.current.volume = normVol;
+          if (videoRef1.current) videoRef1.current.volume = normVol;
+          if (normVol > 0) setAwaitingFirstInteraction(false);
         } catch {
           // Ignore
         }
@@ -299,6 +261,7 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
   }, [useLocalVideo, onReady, onStateChange, ad?.id]);
 
   if (useLocalVideo) {
+    const muted = awaitingFirstInteraction || Boolean(isMuted);
     return (
       <div className="tv-dual-video-wrapper">
         <video
@@ -306,7 +269,7 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
           className={`html5-video-player ${activeBuffer === 0 ? "is-active" : "is-inactive"}`}
           autoPlay
           playsInline
-          muted={Boolean(isMuted)}
+          muted={muted}
           preload="auto"
         />
         <video
@@ -314,7 +277,7 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
           className={`html5-video-player ${activeBuffer === 1 ? "is-active" : "is-inactive"}`}
           autoPlay
           playsInline
-          muted={Boolean(isMuted)}
+          muted={muted}
           preload="auto"
         />
         {nextAd?.videoUrl && (
