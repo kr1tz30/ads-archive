@@ -85,8 +85,6 @@ function App() {
 
   useEffect(() => {
     hasStartedCurrentRef.current = false;
-    const initialPlayer = playerRef.current;
-    if (initialPlayer?.pauseVideo) initialPlayer.pauseVideo();
 
     if (isFirstMountRef.current) {
       isFirstMountRef.current = false;
@@ -94,6 +92,17 @@ function App() {
       setTransitionPhase("none");
       return;
     }
+
+    // Pause whatever was playing before starting the channel-switch
+    // static/settle sequence — but only on an actual transition, never
+    // on the very first mount (handled by the early return above).
+    // React runs child effects before parent effects, so by the time
+    // this runs, VideoPlayer's own mount effect has already started
+    // the first video (muted, to guarantee autoplay); calling
+    // pauseVideo() here unconditionally used to fire right after that
+    // and kill it before it ever became visible.
+    const initialPlayer = playerRef.current;
+    if (initialPlayer?.pauseVideo) initialPlayer.pauseVideo();
 
     // Local mp4 playback has no YouTube chrome to mask, so it only needs
     // a brief settle; the long buffer is reserved for the YouTube
