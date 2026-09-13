@@ -319,13 +319,18 @@ function App() {
     const player = playerRef.current;
     if (player) {
       hasStartedCurrentRef.current = true;
-      if (player.playVideo) {
-        try {
-          player.playVideo();
-        } catch {
-          // Autoplay policy handled by browser
-        }
-      }
+      // Deliberately not calling player.playVideo() here — both
+      // VideoPlayer (local <video>, on mount/ad-change) and
+      // YouTubePlayer (in its own onReady) already start playback
+      // themselves. Calling it again here fires a second, redundant
+      // play() within milliseconds of the first; for local video that
+      // second call inherits whatever muted state the "sync muted"
+      // effect has already applied (unmuted, by default), which the
+      // browser blocks — and that block cascades into aborting the
+      // FIRST (correctly muted, otherwise-successful) play() too,
+      // since browsers reject every pending play() promise on an
+      // element as soon as any one of them gets denied. Net effect:
+      // the very first video silently failed to autoplay at all.
       if (isMutedRef.current) {
         if (player.mute) {
           try {
