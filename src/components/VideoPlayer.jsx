@@ -38,6 +38,8 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
     (targetVideo) => {
       const video = targetVideo || getActiveVideo();
       if (!video) return;
+      window.__dbg = window.__dbg || [];
+      window.__dbg.push({ t: performance.now(), fn: "safePlay", stack: new Error().stack });
       // Mute is already kept in sync independently (the `muted` prop on
       // both <video> elements, plus the sync effect below) — setting it
       // here too would make this function's identity depend on isMuted,
@@ -46,18 +48,11 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
       try {
         const p = video.play();
         playPromiseRef.current = p;
-        window.__debugLog = window.__debugLog || [];
-        window.__debugLog.push({ t: performance.now(), event: "safePlay called", muted: video.muted });
         if (p !== undefined) {
-          p.then(() => {
-            window.__debugLog.push({ t: performance.now(), event: "play resolved", muted: video.muted, paused: video.paused });
-          }).catch((e) => {
-            window.__debugLog.push({ t: performance.now(), event: "play rejected", error: e.name + ": " + e.message });
-          });
+          p.catch(() => {});
         }
-      } catch (e) {
-        window.__debugLog = window.__debugLog || [];
-        window.__debugLog.push({ t: performance.now(), event: "play threw", error: String(e) });
+      } catch {
+        // Ignore
       }
     },
     [getActiveVideo]
@@ -67,9 +62,12 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
     (targetVideo) => {
       const video = targetVideo || getActiveVideo();
       if (!video) return;
+      window.__dbg = window.__dbg || [];
+      window.__dbg.push({ t: performance.now(), fn: "safePause", stack: new Error().stack });
       const p = playPromiseRef.current;
       if (p !== undefined && p !== null) {
         p.then(() => {
+          window.__dbg.push({ t: performance.now(), fn: "safePause deferred pause() firing now" });
           try {
             video.pause();
           } catch {}
@@ -94,8 +92,6 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
     if (!useLocalVideo) return;
     const targetSrc = getVideoSrc(ad?.videoUrl);
     if (!targetSrc) return;
-    window.__debugLog = window.__debugLog || [];
-    window.__debugLog.push({ t: performance.now(), isFirstMount: isFirstMountRef.current, targetSrc });
 
     if (isFirstMountRef.current) {
       isFirstMountRef.current = false;
@@ -227,8 +223,6 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
     const v1 = videoRef1.current;
 
     const createHandler = (bufferIdx, eventName) => () => {
-      window.__debugLog = window.__debugLog || [];
-      window.__debugLog.push({ t: performance.now(), event: `DOM ${eventName} fired on buffer ${bufferIdx}`, activeBuffer: activeBufferRef.current });
       if (activeBufferRef.current === bufferIdx) {
         if (eventName === "play") onStateChange && onStateChange({ data: PLAYER_STATES.PLAYING });
         if (eventName === "pause") onStateChange && onStateChange({ data: PLAYER_STATES.PAUSED });
