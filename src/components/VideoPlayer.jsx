@@ -46,11 +46,18 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
       try {
         const p = video.play();
         playPromiseRef.current = p;
+        window.__debugLog = window.__debugLog || [];
+        window.__debugLog.push({ t: performance.now(), event: "safePlay called", muted: video.muted });
         if (p !== undefined) {
-          p.catch(() => {});
+          p.then(() => {
+            window.__debugLog.push({ t: performance.now(), event: "play resolved", muted: video.muted, paused: video.paused });
+          }).catch((e) => {
+            window.__debugLog.push({ t: performance.now(), event: "play rejected", error: e.name + ": " + e.message });
+          });
         }
-      } catch {
-        // Ignore
+      } catch (e) {
+        window.__debugLog = window.__debugLog || [];
+        window.__debugLog.push({ t: performance.now(), event: "play threw", error: String(e) });
       }
     },
     [getActiveVideo]
@@ -87,6 +94,8 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
     if (!useLocalVideo) return;
     const targetSrc = getVideoSrc(ad?.videoUrl);
     if (!targetSrc) return;
+    window.__debugLog = window.__debugLog || [];
+    window.__debugLog.push({ t: performance.now(), isFirstMount: isFirstMountRef.current, targetSrc });
 
     if (isFirstMountRef.current) {
       isFirstMountRef.current = false;
@@ -218,6 +227,8 @@ export default function VideoPlayer({ ad, nextAd, onReady, onStateChange, player
     const v1 = videoRef1.current;
 
     const createHandler = (bufferIdx, eventName) => () => {
+      window.__debugLog = window.__debugLog || [];
+      window.__debugLog.push({ t: performance.now(), event: `DOM ${eventName} fired on buffer ${bufferIdx}`, activeBuffer: activeBufferRef.current });
       if (activeBufferRef.current === bufferIdx) {
         if (eventName === "play") onStateChange && onStateChange({ data: PLAYER_STATES.PLAYING });
         if (eventName === "pause") onStateChange && onStateChange({ data: PLAYER_STATES.PAUSED });
